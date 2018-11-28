@@ -18,7 +18,8 @@ Msun = 1.9891*math.pow(10, 30)
 G = 4*(math.pi)**2
 MSUN = 1
 MEARTH = 3.3*MSUN*math.pow(10, -5)
-dt = 0.1# Set the time step each iteration undergoes
+MJUPITER = 1.05*MSUN*math.pow(10, -3)
+dt = 0.01# Set the time step each iteration undergoes
 maxnsteps = 4
 
 # --- Set the sun location to (0,0) --- #
@@ -29,32 +30,47 @@ sun_pos = np.array([0,0])
 # --- Give initial positions and velocities --- #
 """Consider making this user input later on"""
 x_earth, y_earth = 1.0, 0.0
+x_jupiter, y_jupiter = 5.2, 0.0
 vx_earth, vy_earth = 0.0, 2*math.pi
+vx_jupiter, vy_jupiter = 0.0, 2.687546835 # In notes 
 
-dlist=[]
+e_list=[]
+j_list=[]
 
 
 # --- define both Approximations --- #
 """Use vectors to define the orbit"""
 def earthEuler():
-    earth_pos = np.array([x_earth, y_earth])
     time = 0
-    acceleration_vector = np.array([0.0,0.0])
-    velocity_vector = np.array([vx_earth, vy_earth])
-    while time < maxnsteps:
-        distance = math.sqrt(np.dot(sun_pos-earth_pos,sun_pos-earth_pos))
-        acceleration_vector = np.array([-(G*MSUN*earthPos[0])/(distance**3), -(G*MSUN*earthPos[1])/(distance**3)])
-        #print(sunPos-earthPos)
-        #print(accelerationVector)
-        #recreate the vector each time as this will make the step to multiple planets easier
-        np.add(earth_pos, velocity_vector*dt, out=earth_pos, casting='unsafe')
-        np.add(velocity_vector, acceleration_vector*dt, out=velocity_vector, casting='unsafe')
+    
+    earth_pos = np.array([x_earth, y_earth])
+    earth_velocity_vector = np.array([vx_earth, vy_earth])
+    earth_acceleration_vector = np.array([0.0,0.0])
+    
+    jupiter_pos = np.array([x_jupiter, y_jupiter])
+    jupiter_velocity_vector = np.array([vx_jupiter, vy_jupiter])
+    jupiter_acceleration_vector = np.array([0.0,0.0])
+    
+    for count in range(int(maxnsteps/dt)):
+        earthsun_distance = math.sqrt(np.dot(sun_pos-earth_pos,sun_pos-earth_pos))
+        jupitersun_distance = math.sqrt(np.dot(sun_pos-jupiter_pos,sun_pos-jupiter_pos))
+        
+        earth_acceleration_vector = np.array([-(G*MSUN*earth_pos[0])/(earthsun_distance**3), -(G*MSUN*earth_pos[1])/(earthsun_distance**3)])
+        jupiter_acceleration_vector = np.array([-(G*MSUN*jupiter_pos[0])/(jupitersun_distance**3), -(G*MSUN*jupiter_pos[1])/(jupitersun_distance**3)])
+        
+        np.add(earth_pos, earth_velocity_vector*dt, out=earth_pos, casting='unsafe')
+        np.add(jupiter_pos, jupiter_velocity_vector*dt, out=jupiter_pos, casting='unsafe')
+        
+        np.add(earth_velocity_vector, earth_acceleration_vector*dt, out=earth_velocity_vector, casting='unsafe')
+        np.add(jupiter_velocity_vector, jupiter_acceleration_vector*dt, out=jupiter_velocity_vector, casting='unsafe')
+        
         #print(accelerationVector)
         #print(math.sqrt(np.dot(accelerationUnitVector, accelerationUnitVector)))
-        dlist.append([time, earth_pos[0], earth_pos[1], velocity_vector[0], velocity_vector[1]])
+        e_list.append([time, earth_pos[0], earth_pos[1], earth_velocity_vector[0], earth_velocity_vector[1]])
+        j_list.append([time, jupiter_pos[0], jupiter_pos[1], jupiter_velocity_vector[0], jupiter_velocity_vector[1]])
         time += dt
         
-    return (sun_pos-earth_pos)
+    return -earth_pos[0], -earth_pos[1], -jupiter_pos[0], -jupiter_pos[1]
         #print(xval, yval)
         #E = 0.5*Mearth*(xval**2 + yval**2)
         #dlist.append([tval, xval, yval, vxval, vyval])
@@ -62,25 +78,66 @@ def earthEuler():
 
 
 def earthEulerCramer():
-    earth_pos = np.array([x_earth, x_earth])
     time = 0
-    acceleration_vector = np.array([0.0,0.0])
-    velocity_vector = np.array([vx_earth, vy_earth])
-    while time < maxnsteps:
-        distance = math.sqrt(np.dot(sun_pos-earth_pos,sun_pos-earth_pos))
-        accelerationVector = np.array([-(G*MSUN*earth_pos[0])/(distance**3), -(G*MSUN*earth_pos[1])/(distance**3)])
-        #print(sunPos-earthPos)
-        #print(accelerationVector)
-        #recreate the vector each time as this will make the step to multiple planets easier
-        np.add(velocity_vector, acceleration_vector*dt, out=velocity_vector, casting='unsafe')
-        np.add(earth_pos, velocity_vector*dt, out=earth_pos, casting='unsafe')
+    
+    earth_pos = np.array([x_earth, y_earth])
+    earth_velocity_vector = np.array([vx_earth, vy_earth])
+    earth_acceleration_vector = np.array([0.0,0.0])
+    
+    jupiter_pos = np.array([x_jupiter, y_jupiter])
+    jupiter_velocity_vector = np.array([vx_jupiter, vy_jupiter])
+    jupiter_acceleration_vector = np.array([0.0,0.0])
+    
+    for count in range(int(maxnsteps/dt)):
+        earthsun_distance = math.sqrt(np.dot(sun_pos-earth_pos,sun_pos-earth_pos))
+        jupitersun_distance = math.sqrt(np.dot(sun_pos-jupiter_pos,sun_pos-jupiter_pos))
+        
+        earth_acceleration_vector = np.array([-(G*MSUN*earth_pos[0])/(earthsun_distance**3), -(G*MSUN*earth_pos[1])/(earthsun_distance**3)])
+        jupiter_acceleration_vector = np.array([-(G*MSUN*jupiter_pos[0])/(jupitersun_distance**3), -(G*MSUN*jupiter_pos[1])/(jupitersun_distance**3)])
+
+        np.add(earth_velocity_vector, earth_acceleration_vector*dt, out=earth_velocity_vector, casting='unsafe')
+        np.add(jupiter_velocity_vector, jupiter_acceleration_vector*dt, out=jupiter_velocity_vector, casting='unsafe')
+        
+        np.add(earth_pos, earth_velocity_vector*dt, out=earth_pos, casting='unsafe')
+        np.add(jupiter_pos, jupiter_velocity_vector*dt, out=jupiter_pos, casting='unsafe')
+        
         #print(accelerationVector)
         #print(math.sqrt(np.dot(accelerationUnitVector, accelerationUnitVector)))
-        dlist.append([time, earth_pos[0], earth_pos[1], velocity_vector[0], velocity_vector[1]])
+        e_list.append([time, earth_pos[0], earth_pos[1], earth_velocity_vector[0], earth_velocity_vector[1]])
+        j_list.append([time, jupiter_pos[0], jupiter_pos[1], jupiter_velocity_vector[0], jupiter_velocity_vector[1]])
         time += dt
         
-    return (sun_pos-earth_pos)
+    return -earth_pos[0], -earth_pos[1], -jupiter_pos[0], -jupiter_pos[1]
+        #print(xval, yval)
+        #E = 0.5*Mearth*(xval**2 + yval**2)
+        #dlist.append([tval, xval, yval, vxval, vyval])
+        #calculate the acceleration before any other value and in x-y parallel
 
+"""Next we want to have a all the recorded data printed into a documents correspoding to each planet"""
+
+
+# --- Create a function to create the text documents when an approximation runs --- # 
+def getData():
+    
+    with open("earthPositions.txt", "w") as File: # This creates and opens a new text document
+    #then labels the document "File"
+        for n in range(0, len(e_list)):
+        # Every value must be written in
+            File.write(str(e_list[n][1])) # The time value is added first
+            File.write("\t") # A white space is added so that data is split into two columns
+            File.write(str(e_list[n][2])) # The acceleration value is added next
+            File.write("\n") # a new line is added so this may repeat for all programs
+
+    with open("jupiterPositions.txt", "w") as File: # This creates and opens a new text document
+        #then labels the document "File"
+        for n in range(0, len(j_list)):
+        # Every value must be written in
+            File.write(str(j_list[n][1])) # The time value is added first
+            File.write("\t") # A white space is added so that data is split into two columns
+            File.write(str(j_list[n][2])) # The acceleration value is added next
+            File.write("\n") # a new line is added so this may repeat for all programs
+
+    return "complete"
 
 
 
@@ -104,7 +161,7 @@ This is solved below by removing all forbidden values (i.e. anything that isnt n
 
 
 """
-translation_table = dict.fromkeys(map(ord, '!@#$qwertyuiopasdfghjklzxcvbnm,.\/|#@[]{}+=-_)(*&'), None)
+translation_table = dict.fromkeys(map(ord, '¬^£%!@#$qwertyuiopasdfghjklzxcvbnm,.\/|#@[]{}+=-_)(*&'), None)
 approximation = approximation.translate(translation_table) 
 
 if int(approximation) == 1:
@@ -115,6 +172,8 @@ if int(approximation) == 1:
         print("\t")
         print("A text file has been generated with the output values")
         print("\t")
+        getData()
+        print("\t")
         input("Press any key to close the program")
         
 elif int(approximation) == 2:
@@ -124,6 +183,8 @@ elif int(approximation) == 2:
         print(earthEulerCramer())
         print("\t")
         print("A text file has been generated with the output values")
+        print("\t")
+        getData()
         print("\t")
         input("Press any key to close the program")
 
@@ -138,12 +199,3 @@ else:
         approximation = input("Press any key to exit")
 
 
-
-"""with open("Orbital.txt", "w") as File: # This creates and opens a new text document
-    #then labels the document "File"
-    for n in range(0, len(dlist)):
-        # Every value must be written in
-        File.write(str(dlist[n][1])) # The time value is added first
-        File.write("\t") # A white space is added so that data is split into two columns
-        File.write(str(dlist[n][2])) # The acceleration value is added next
-        File.write("\n") # a new line is added so this may repeat for all programs"""
