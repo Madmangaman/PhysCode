@@ -30,13 +30,15 @@ sun_pos = np.array([0,0])
 
 # --- Give initial positions and velocities --- #
 """Consider making this user input later on"""
+""" REWRITE IN ONE DATA ARRAY""" # Do I NEED numpy?
 
-x_earth, y_earth = 1.0, 0.0
-x_jupiter, y_jupiter = 5.2, 0.0
+planet_data = [[np.array([1.0, 0.0]), np.array([0.0, 2*math.pi])],[np.array([5.2, 0.0]),np.array([0.0, 2.68754])]]
 
-vx_earth, vy_earth = 0.0, 2*math.pi
-vx_jupiter, vy_jupiter = 0.0, 2.687546835 # In notes 
+earth_pos = np.array([1.0, 0.0])
+jupiter_pos = np.array([5.2, 0.0])
 
+earth_velocity_vector = np.array([0.0, 2*math.pi]) 
+jupiter_velocity_vector = np.array([0.0, 2.68754]) # In notes 
 
 # --- Give each planet a list to record plot values to --- #
 
@@ -74,12 +76,7 @@ def iteration(changing_variable, update_variable):
 def earthEuler():
     time = 0
     
-    earth_pos = np.array([x_earth, y_earth])
-    earth_velocity_vector = np.array([vx_earth, vy_earth])
     earth_acceleration_vector = np.array([0.0,0.0])
-    
-    jupiter_pos = np.array([x_jupiter, y_jupiter])
-    jupiter_velocity_vector = np.array([vx_jupiter, vy_jupiter])
     jupiter_acceleration_vector = np.array([0.0,0.0])
     
     for count in range(int(maxnsteps/dt)):
@@ -115,12 +112,7 @@ def earthEuler():
 def earthEulerCramer():
     time = 0
     
-    earth_pos = np.array([x_earth, y_earth])
-    earth_velocity_vector = np.array([vx_earth, vy_earth])
     earth_acceleration_vector = np.array([0.0,0.0])
-    
-    jupiter_pos = np.array([x_jupiter, y_jupiter])
-    jupiter_velocity_vector = np.array([vx_jupiter, vy_jupiter])
     jupiter_acceleration_vector = np.array([0.0,0.0])
     
     for count in range(int(maxnsteps/dt)):
