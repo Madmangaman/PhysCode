@@ -2,182 +2,262 @@ import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
+from pylab import *
 import math
-
-e_list = []
-j_list = []
-sun_list = []
-sat_list = []
-nep_list = []
-mars_list = []
+import time
+from get_plotData import *
 
 
-# "velocitydata.txt" may be replaced by any similarly formatted input document for a similar
-earth_data = open("earthPositionsEuler-Cramer.txt", "r")
+print("Choose whether you want a 2D or a 3D plot, enter 1 for 2D and 2 for 3D")
+print("\t")
+dimensions = int(input())
+print("\t")
+print("Which model would you like to use, Enter 1 for Euler and 2 for Euler-Cramer")
+print("\t")
+approximation = input()
+print("\t")
+print("Which Planets would you like to plot?  ")
+print("\t")
+print("Please refer to the names given on the text files e.g. for EarthPositionsEuler, \
+type Earth (case sensistve)")
+print("\t")
+how_many = input()
 
-for line in earth_data.readlines():
-    # add a new sublist
-    e_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        e_list[-1].append(float(i))
-earth_data.close()
 
-# "velocitydata.txt" may be replaced by any similarly formatted input document for a similar
-jupiter_data = open("jupiterPositionsEuler-Cramer.txt", "r")
+translation_table = dict.fromkeys(
+    map(ord, '¬^£%!@#$qwertyuiopasdfghjklzxcvbnm,.\/|#@[]{}+=-_)(*&'), None)
+approximation = approximation.translate(translation_table)
 
-for line in jupiter_data.readlines():
-    # add a new sublist
-    j_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        j_list[-1].append(float(i))
-jupiter_data.close()
+choice = "blank"
 
-# "velocitydata.txt" may be replaced by any similarly formatted input document for a similar
-saturn_data = open("saturnPositionsEuler-Cramer.txt", "r")
+if int(approximation) == 1:
 
-for line in saturn_data.readlines():
-    # add a new sublist
-    sat_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        sat_list[-1].append(float(i))
-saturn_data.close()
+    choice = "Euler"
+    print("The Euler approximation data is being imported into the program")
+    print("\t")
+    generate_data(choice, how_many)
+    print("\t")
+    input("Press any key to continue the program")
+    print("\t")
 
-# "velocitydata.txt" may be replaced by any similarly formatted input document for a similar
-sun_data = open("sunPositionsEuler-Cramer.txt", "r")
+elif int(approximation) == 2:
 
-for line in sun_data.readlines():
-    # add a new sublist
-    sun_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        sun_list[-1].append(float(i))
-sun_data.close()
+    choice = "Euler-Cramer"
+    print("The Euler-Cramer approximation data is being imported")
+    print("\t")
+    generate_data(choice, how_many)
+    print("\t")
+    input("Press any key to continue the program")
+    print("\t")
 
-# "velocitydata.txt" may be replaced by any similarly formatted input document for a similar
-nep_data = open("neptunePositionsEuler-Cramer.txt", "r")
+elif int(approximation) == 3:
 
-for line in nep_data.readlines():
-    # add a new sublist
-    nep_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        nep_list[-1].append(float(i))
-nep_data.close()
+    print("\t")
+    print("The program will now close")
+    time.sleep(3)
+else:
+    print("\t")
+    print("This input is invalid, please restart the program to obtain a value")
+    print("\t")
+    approximation = input("Press any key to exit")
 
-mars_data = open("marsPositionsEuler-Cramer.txt", "r")
-for line in mars_data.readlines():
-    # add a new sublist
-    mars_list.append([])
-    # loop over the elements and consider the white space between
-    for i in line.split():
-        # convert each variable to a float and then append to the list
-        mars_list[-1].append(float(i))
-mars_data.close()
 
+"""
+The for loop below takes the points given in each function and reduces this number roughly 100 times
+This is to reduce the strain on the computer when rendering all the planets/bodies
+This reduces the accuracy but the individual points themselves remain correct
+"""
 k = 3
-for i in range(3*k+2):
-    del e_list[k-1::k]
-    del j_list[k-1::k]
-    del sat_list[k-1::k]
-    del sun_list[k-1::k]
-    del nep_list[k-1::k]
-    del mars_list[k-1::k]
-    # repeat for every other list
+for i in range(3*k+3):
+    del Sun_list[k-1::k]
+    del Mer_list[k-1::k]
+    del Ven_list[k-1::k]
+    del Ear_list[k-1::k]
+    del Mar_list[k-1::k]
+    del Jup_list[k-1::k]
+    del Sat_list[k-1::k]
+    del Ura_list[k-1::k]
+    del Nep_list[k-1::k]
+    del Plu_list[k-1::k]
+    del Ob1_list[k-1::k]
+    del Ob2_list[k-1::k]
 
-fig = plt.figure(figsize=(100, 100))
-ae = fig.gca(projection='3d')
-aj = fig.gca(projection='3d')
-asun = fig.gca(projection='3d')
-asat = fig.gca(projection='3d')
-anep = fig.gca(projection='3d')
-amars = fig.gca(projection='3d')
+# Now I create two distinct plots of all the data chosen
+# print(dimensions)
+if dimensions == 1:
+    plt.figure(figsize=(100, 100))
+    """asun, amer, aven = fig.gca(projection='2d'), fig.gca(
+        projection='2d'), fig.gca(projection='2d')
+    aear, amar, ajup = fig.gca(projection='2d'), fig.gca(
+        projection='2d'), fig.gca(projection='2d')
+    asat, aura, anep = fig.gca(projection='2d'), fig.gca(
+        projection='2d'), fig.gca(projection='2d')
+    aplu, aob1, aob2 = fig.gca(projection='2d'), fig.gca(
+        projection='2d'), fig.gca(projection='2d')"""
+    x1, y1, x2, y2 = [], [], [], []
+    x3, y3, x4, y4 = [], [], [], []
+    x5, y5, x6, y6 = [], [], [], []
+    x7, y7, x8, y8 = [], [], [], []
+    x9, y9, x10, y10 = [], [], [], []
+    x11, y11, x12, y12 = [], [], [], []
+    # print(full_list[0])
+    """for i in range(len(full_list)):"""
+    # print(len(full_list))
+    # print(full_list[0][1])
+    for _ in range(len(full_list)):
+        print(_)
+        x1.append(full_list[0][_][0])
+        y1.append(full_list[0][_][1])
+        if len(full_list) == 2:
+            x2.append(full_list[1][_][0])
+            y2.append(full_list[1][_][1])
+        if len(full_list) == 3:
+            x3.append(full_list[2][_][0])
+            y3.append(full_list[2][_][1])
+        if len(full_list) == 4:
+            x4.append(full_list[3][_][0])
+            y4.append(full_list[3][_][1])
+        if len(full_list) == 5:
+            x5.append(full_list[4][_][0])
+            y5.append(full_list[4][_][1])
+        if len(full_list) == 6:
+            x6.append(full_list[5][_][0])
+            y6.append(full_list[5][_][1])
+        if len(full_list) == 7:
+            x7.append(full_list[6][_][0])
+            y7.append(full_list[6][_][1])
+        if len(full_list) == 8:
+            x8.append(full_list[7][_][0])
+            y8.append(full_list[7][_][1])
+        if len(full_list[0]) == 9:
+            x9.append(full_list[8][_][0])
+            y9.append(full_list[8][_][1])
+        if len(full_list[0]) == 10:
+            x10.append(full_list[9][_][0])
+            y10.append(full_list[9][_][1])
+        if len(full_list[0]) == 11:
+            x11.append(full_list[9][_][0])
+            y11.append(full_list[1][_][1])
+        if len(full_list[0]) == 12:
+            x12.append(full_list[11][_][0])
+            y12.append(full_list[11][_][1])
+    plt.plot(x1, y1)
+    plt.plot(x2, y2)
+    plt.plot(x3, y3)
+    plt.plot(x4, y4)
+    plt.plot(x5, y5)
+    plt.plot(x6, y6)
+    plt.plot(x7, y7)
+    plt.plot(x8, y8)
+    plt.plot(x9, y9)
+    plt.plot(x10, y10)
+    plt.plot(x11, y11)
+    plt.plot(x12, y12)
+    plt.title('2-Dimensional orbits')
+    plt.show()
 
-x6 = []
-y6 = []
-z6 = []
+elif dimensions == 2:
 
-for i in range(len(nep_list)):
-    x6.append(mars_list[i][0])
-    y6.append(mars_list[i][1])
-    z6.append(mars_list[i][2])
+    fig = plt.figure(figsize=(100, 100))
+    asun, amer, aven = fig.gca(projection='3d'), fig.gca(
+        projection='3d'), fig.gca(projection='3d')
+    aear, amar, ajup = fig.gca(projection='3d'), fig.gca(
+        projection='3d'), fig.gca(projection='3d')
+    asat, aura, anep = fig.gca(projection='3d'), fig.gca(
+        projection='3d'), fig.gca(projection='3d')
+    aplu, aob1, aob2 = fig.gca(projection='3d'), fig.gca(
+        projection='3d'), fig.gca(projection='3d')
+# create a list for of all the data points
+    x1, y1, z1, x2, y2, z2 = [], [], [], [], [], []
+    x3, y3, z3, x4, y4, z4 = [], [], [], [], [], []
+    x5, y5, z5, x6, y6, z6 = [], [], [], [], [], []
+    x7, y7, z7, x8, y8, z8 = [], [], [], [], [], []
+    x9, y9, z9, x10, y10, z10 = [], [], [], [], [], []
+    x11, y11, z11, x12, y12, z12 = [], [], [], [], [], []
+    """for i in range(len(full_list)):"""
+    # print(len(full_list[0]))
+    # print(len(full_list[0][1]))
+    for _ in range(len(full_list[0])):
+        print(_)
+        x1.append(full_list[0][_][0])
+        y1.append(full_list[0][_][1])
+        z1.append(full_list[0][_][2])
+        if len(full_list[0]) == 2:
+            x2.append(full_list[1][_][0])
+            y2.append(full_list[1][_][1])
+            z2.append(full_list[1][_][2])
+        if len(full_list[0]) == 3:
+            x3.append(full_list[2][_][0])
+            y3.append(full_list[2][_][1])
+            z3.append(full_list[2][_][2])
+        if len(full_list[0]) == 4:
+            x4.append(full_list[3][_][0])
+            y4.append(full_list[3][_][1])
+            z4.append(full_list[3][_][2])
+        if len(full_list[0]) == 5:
+            x5.append(full_list[4][_][0])
+            y5.append(full_list[4][_][1])
+            z5.append(full_list[4][_][2])
+        if len(full_list[0]) == 6:
+            x6.append(full_list[5][_][0])
+            y6.append(full_list[5][_][1])
+            z6.append(full_list[5][_][2])
+        if len(full_list[0]) == 7:
+            x7.append(full_list[6][_][0])
+            y7.append(full_list[6][_][1])
+            z7.append(full_list[6][_][2])
+        if len(full_list[0]) == 8:
+            x8.append(full_list[7][_][0])
+            y8.append(full_list[7][_][1])
+            z8.append(full_list[7][_][2])
+        if len(full_list[0]) == 9:
+            x9.append(full_list[8][_][0])
+            y9.append(full_list[8][_][1])
+            z9.append(full_list[8][_][2])
+        if len(full_list[0]) == 10:
+            x10.append(full_list[9][_][0])
+            y10.append(full_list[9][_][1])
+            z10.append(full_list[9][_][2])
+        if len(full_list[0]) == 11:
+            x11.append(full_list[9][_][0])
+            y11.append(full_list[1][_][1])
+            z11.append(full_list[10][_][2])
+        if len(full_list[0]) == 11:
+            x12.append(full_list[11][_][0])
+            y12.append(full_list[11][_][1])
+            z12.append(full_list[11][_][2])
+
+    mpl.rcParams['legend.fontsize'] = 10
+
+    asun.plot(x1, y1, z1, label='Sun orbit')
+    aven.plot(x2, y2, z2, label='Mercury orbit')
+    amer.plot(x3, y3, z3, label='Venus orbit')
+    aear.plot(x4, y4, z4, label='Earth orbit')
+    amar.plot(x5, y5, z5, label='Mars orbit')
+    ajup.plot(x6, y6, z6, label='Jupiter orbit')
+    asat.plot(x7, y7, z7, label='Saturn orbit')
+    aura.plot(x8, y8, z8, label='Uranus orbit')
+    anep.plot(x9, y9, z9, label='Neptune orbit')
+    aplu.plot(x10, y10, z10, label='Pluto orbit')
+    aob1.plot(x11, y11, z11, label='Object1 orbit')
+    aob2.plot(x12, y12, z12, label='Object2 orbit')
+
+    asun.legend()
+    aven.legend()
+    amer.legend()
+    aear.legend()
+    amar.legend()
+    ajup.legend()
+    asat.legend()
+    aura.legend()
+    anep.legend()
+    aplu.legend()
+    aob1.legend()
+    aob2.legend()
+    plt.show()
+
+else:
+    print("Invalid input, please restart the program to continue")
 
 
-x5 = []
-y5 = []
-z5 = []
-
-for i in range(len(nep_list)):
-    x5.append(nep_list[i][0])
-    y5.append(nep_list[i][1])
-    z5.append(nep_list[i][2])
-
-x2 = []
-y2 = []
-z2 = []
-
-for i in range(len(j_list)):
-    x2.append(j_list[i][0])
-    y2.append(j_list[i][1])
-    z2.append(j_list[i][2])
-
-x4 = []
-y4 = []
-z4 = []
-for i in range(len(sat_list)):
-    x4.append(sat_list[i][0])
-    y4.append(sat_list[i][1])
-    z4.append(sat_list[i][2])
-
-x3 = []
-y3 = []
-z3 = []
-
-for i in range(len(sun_list)):
-    x3.append(sun_list[i][0])
-    y3.append(sun_list[i][1])
-    z3.append(sun_list[i][2])
-
-x1 = []
-y1 = []
-z1 = []
-
-for i in range(len(e_list)):
-    x1.append(e_list[i][0])
-    y1.append(e_list[i][1])
-    z1.append(e_list[i][2])
-
-
-mpl.rcParams['legend.fontsize'] = 10
-
-
-asat.plot(x3, y3, z3, label='sun orbit')
-asat.legend()
-asat.set_ylim3d(-32, 32)
-asat.set_xlim3d(-32, 32)
-asat.set_zlim3d(-1, 1)
-
-anep.plot(x6, y6, z6, label='mars orbit')
-anep.legend()
-
-anep.plot(x5, y5, z5, label='neptune orbit')
-anep.legend()
-
-asun.plot(x4, y4, z4, label='saturn orbit')
-asun.legend()
-
-
-aj.plot(x2, y2, z2, label='jupiter orbit')
-aj.legend()
-
-
-ae.plot(x1, y1, z1, label='earth orbit')
-ae.legend()
-plt.show()
+print(input("Press any key to exit after viewing the data"))

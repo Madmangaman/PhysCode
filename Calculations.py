@@ -63,7 +63,6 @@ def dist_by_mag(body_one, objects):
     y_fraction = 0
     z_fraction = 0
     for i in range(dimension-1):
-
         x_fraction += other_Masses(body_one, objects)[i]*distance(body_one)[
             i][0] / (magnitude(body_one)[i]**3)
         y_fraction += other_Masses(body_one, objects)[i]*distance(body_one)[

@@ -1,20 +1,44 @@
 import math
 G = 4*math.pi**2
-dt = 0.0005
-maxnstep = 20
+print("Please enter a timestep as a decimal of a year e.g. 0.01, \
+to choose the accuracy of the approximation")
+print("\t")
+print("Recommended time steps between 0.1 and 0.0001 any smaller will \
+run for a very long time")
+print("\t")
+dt = float(input())
+print("\t")
+print("How many years would you like the simulation to run for\
+(recommend under 20 with lots of bodies)?")
+maxnstep = float(input())
 """ read positions and velocities into this file (masses will be generated in the calculations file)"""
 
-# In solar masses
-object_Masses = [
-    1.0, 2.985*math.pow(10, -6), 9.49*math.pow(10, -4), 2.8417*math.pow(10, -4), 3.20855*math.pow(10, -7), 5.1*math.pow(10, -5)]
+planets = open("Planetdata.txt", "r")
+
+temporary_data = []
+object_Positions = []
+object_Velocities = []
+object_Masses = []
+
+for line in planets.readlines():
+    temporary_data.append([])
+    for i in line.split():
+        temporary_data[-1].append(float(i))
 
 
-object_Positions = [[-5.53*math.pow(10, -4), 7.37*math.pow(10, -3), -6.252*math.pow(10, -5)], [0.278623, 0.9523992, -1.087035*math.pow(10, -4)], [
-    -2.31, -4.825, 0.0717], [1.824, -9.8865, 0.0993], [1.27788494, 0.6363141635, -0.018253726], [28.9616675, -7.56068, -0.51175246]]  # test values currently put in
+for j in range(len(temporary_data)):
+    for k in range(4):
+        if k == 1:
+            object_Positions.append(
+                [temporary_data[j][0], temporary_data[j][1], temporary_data[j][2]])
+        elif k == 2:
+            object_Velocities.append(
+                [temporary_data[j][3]*365, temporary_data[j][4]*365, temporary_data[j][5]*365])
+        elif k == 3:
+            object_Masses.append(temporary_data[j][6]/(2*math.pow(10, 6)))
 
-
-object_Velocities = [[-0.00282, 0.000794, 0.0000711], [
-    -6.0955, 1.757, 1.21*math.pow(10, -4)], [2.45, -1.0585, -0.05037], [
-        1.889, 0.3628, -0.0814], [-2.06, 5.01875, 0.1505163066], [
-            0.281837, 1.115592474, -0.02935129]]
-dimension = len(object_Positions[1])
+"""print(object_Masses)
+print(object_Positions)
+print(object_Velocities)"""
+dimension = len(object_Masses)
+number_of_bodies = len(object_Masses)
