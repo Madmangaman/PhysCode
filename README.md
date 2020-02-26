@@ -4,5 +4,5 @@ University simple solar system project, many files from experimentation but uplo
 development as I went along. 
 
 
-The main documents are 
+The main documents are all belonging to the set with the description "Big update with 2D/3D plotting options"
 
